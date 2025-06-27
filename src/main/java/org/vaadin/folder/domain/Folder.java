@@ -11,14 +11,11 @@ public class Folder extends AbstractEntity<Long> {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "parent_id")
-    private Long parentId;
-
     @Column(name = "name")
     private String name;
 
-    @Column(name = "depth")
-    private int depth;
+    @Column(name = "parent_id")
+    private Long parentId;
 
     @Override
     public Long getId() {
@@ -29,11 +26,11 @@ public class Folder extends AbstractEntity<Long> {
         return parentId;
     }
 
-    public String getName() {
-        return name;
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 
-    public int getDepth() {
-        return depth;
+    public String getName() {
+        return name;
     }
 }
