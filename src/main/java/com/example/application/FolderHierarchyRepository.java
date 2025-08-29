@@ -20,7 +20,7 @@ public class FolderHierarchyRepository {
                     folders.parent_id,
                     ARRAY[folders.id]
                     FROM folders
-                    WHERE folders.parent_id IS NULL
+                    WHERE folders.parent_id ?
                 UNION ALL
                 SELECT
                     folders.id,

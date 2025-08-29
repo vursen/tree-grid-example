@@ -218,7 +218,7 @@
                                 <database>
                                     <includes>.*</includes>
                                     <excludes></excludes>
-                                    <inputSchema>PUBLIC</inputSchema>
+                                    <inputSchema>public</inputSchema>
                                 </database>
                                 <target>
                                     <packageName>com.example.application.jooq</packageName>
