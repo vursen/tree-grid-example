@@ -30,9 +30,7 @@ public class MainView extends Div {
                 return;
             }
 
-            // Folder folder = folderRepository.findById(draggedItem.getId()).get();
-            // folder.setParentId(targetItem.getId());
-            // folderRepository.save(folder);
+            folderRepository.changeParent(targetItem, draggedItem);
 
             treeGrid.getDataProvider().refreshAll();
         });

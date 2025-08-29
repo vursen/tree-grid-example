@@ -5,6 +5,8 @@ import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.example.application.jooq.tables.Folders;
+
 import java.util.stream.Stream;
 
 @Repository
@@ -60,8 +62,15 @@ public class FolderHierarchyRepository {
                 .fetchStreamInto(FolderHierarchyItem.class);
     }
 
+    public int changeParent(FolderHierarchyItem newParentItem, FolderHierarchyItem item) {
+        return dsl.update(Folders.FOLDERS)
+                .set(Folders.FOLDERS.PARENT_ID, newParentItem.id())
+                .where(Folders.FOLDERS.ID.eq(item.id()))
+                .execute();
+    }
+
     private Condition getParentIdCondition(FolderHierarchyItem parent) {
-        return parent != null ? DSL.condition("folders.parentId = ?", parent.id())
-                : DSL.condition("folders.parentId IS NULL");
+        return parent != null ? DSL.condition("folders.parent_id = ?", parent.id())
+                : DSL.condition("folders.parent_id IS NULL");
     }
 }
