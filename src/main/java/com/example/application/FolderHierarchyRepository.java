@@ -20,7 +20,7 @@ public class FolderHierarchyRepository {
                     folders.parent_id,
                     ARRAY[folders.id]
                     FROM folders
-                    WHERE folders.parent_id ?
+                    WHERE {0}
                 UNION ALL
                 SELECT
                     folders.id,
@@ -28,7 +28,7 @@ public class FolderHierarchyRepository {
                     folders.parent_id,
                     ARRAY_APPEND(folders_cte.path, folders.id)
                     FROM folders, folders_cte
-                    WHERE folders.parent_id = folders_cte.id AND folders.parent_id = ANY(?)
+                    WHERE folders.parent_id = folders_cte.id AND folders.parent_id = ANY({1})
             )
             """;
 
@@ -37,13 +37,13 @@ public class FolderHierarchyRepository {
                 SELECT COUNT(*) FROM folders_cte
                 """;
 
-        return dsl.resultQuery(sql, DSL.val(expandedItemIds)).fetchOne(0, int.class);
+        return dsl.resultQuery(sql, getParentIdCondition(parent), DSL.val(expandedItemIds)).fetchOne(0, int.class);
     }
 
     public Stream<FolderHierarchyItem> fetchFlattenedFolderHierarchy(FolderHierarchyItem parent,
             Integer[] expandedItemIds, int offset, int limit) {
-        String sql = CTE_SQL + """
-                ,has_children AS (SELECT DISTINCT parent_id FROM folders WHERE parent_id IS NOT NULL)
+        String sql = CTE_SQL + "," + """
+                has_children AS (SELECT DISTINCT parent_id FROM folders WHERE parent_id IS NOT NULL)
 
                 SELECT
                     folders_cte.id,
@@ -53,10 +53,15 @@ public class FolderHierarchyRepository {
                     (hc.parent_id IS NOT NULL) AS has_children
                 FROM folders_cte
                 LEFT JOIN has_children hc ON hc.parent_id = folders_cte.id
-                ORDER BY path OFFSET ? LIMIT ?
+                ORDER BY path OFFSET {2} LIMIT {3}
                 """;
 
-        return dsl.resultQuery(sql, DSL.val(expandedItemIds), offset, limit)
+        return dsl.resultQuery(sql, getParentIdCondition(parent), DSL.val(expandedItemIds), offset, limit)
                 .fetchStreamInto(FolderHierarchyItem.class);
+    }
+
+    private Condition getParentIdCondition(FolderHierarchyItem parent) {
+        return parent != null ? DSL.condition("folders.parentId = ?", parent.id())
+                : DSL.condition("folders.parentId IS NULL");
     }
 }
